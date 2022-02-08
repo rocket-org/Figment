@@ -3,13 +3,13 @@ use std::path::{Path, PathBuf};
 
 use serde::de::{self, DeserializeOwned};
 
-use crate::value::{Map, Dict};
-use crate::{Error, Profile, Provider, Metadata};
+use crate::value::{Dict, Map};
+use crate::{Error, Metadata, Profile, Provider};
 
 #[derive(Debug, Clone)]
 enum Source {
     File(Option<PathBuf>),
-    String(String)
+    String(String),
 }
 
 /// A `Provider` that sources values from a file or string in a given
@@ -70,7 +70,11 @@ pub struct Data<F: Format> {
 
 impl<F: Format> Data<F> {
     fn new(source: Source, profile: Option<Profile>) -> Self {
-        Data { source, profile, _format: PhantomData }
+        Data {
+            source,
+            profile,
+            _format: PhantomData,
+        }
     }
 
     /// Returns a `Data` provider that sources its values by parsing the file at
@@ -114,7 +118,7 @@ impl<F: Format> Data<F> {
             if path.is_absolute() {
                 match path.is_file() {
                     true => return Some(path.to_path_buf()),
-                    false => return None
+                    false => return None,
                 }
             }
 
@@ -245,7 +249,7 @@ impl<F: Format> Provider for Data<F> {
         match &self.source {
             String(_) => Metadata::named(format!("{} source string", F::NAME)),
             File(None) => Metadata::named(format!("{} file", F::NAME)),
-            File(Some(p)) => Metadata::from(format!("{} file", F::NAME), &**p)
+            File(Some(p)) => Metadata::from(format!("{} file", F::NAME), &**p),
         }
     }
 
@@ -253,10 +257,10 @@ impl<F: Format> Provider for Data<F> {
         use Source::*;
         let map: Result<Map<Profile, Dict>, _> = match (&self.source, &self.profile) {
             (File(None), _) => return Ok(Map::new()),
-            (File(Some(path)), None) => F::from_path(&path),
-            (String(s), None) => F::from_str(&s),
-            (File(Some(path)), Some(prof)) => F::from_path(&path).map(|v| prof.collect(v)),
-            (String(s), Some(prof)) => F::from_str(&s).map(|v| prof.collect(v)),
+            (File(Some(path)), None) => F::from_path(path),
+            (String(s), None) => F::from_str(s),
+            (File(Some(path)), Some(prof)) => F::from_path(path).map(|v| prof.collect(v)),
+            (String(s), Some(prof)) => F::from_str(s).map(|v| prof.collect(v)),
         };
 
         Ok(map.map_err(|e| e.to_string())?)
@@ -317,7 +321,7 @@ pub trait Format: Sized {
 
     /// Parses `string` as the data format `Self` as a `T` or returns an error
     /// if the `string` is an invalid `T`.
-    fn from_str<'de, T: DeserializeOwned>(string: &'de str) -> Result<T, Self::Error>;
+    fn from_str<T: DeserializeOwned>(string: &str) -> Result<T, Self::Error>;
 
     /// Parses the file at `path` as the data format `Self` as a `T` or returns
     /// an error if the `string` is an invalid `T`. The default implementation

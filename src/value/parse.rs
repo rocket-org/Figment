@@ -1,9 +1,9 @@
-use pear::{parse_error, parsers::*};
 use pear::combinators::*;
-use pear::macros::{parse, parser, switch};
 use pear::input::{Pear, Text};
+use pear::macros::{parse, parser, switch};
+use pear::{parse_error, parsers::*};
 
-use crate::value::{Value, Dict, escape::escape};
+use crate::value::{escape::escape, Dict, Value};
 
 type Input<'a> = Pear<Text<'a>>;
 type Result<'a, T> = pear::input::Result<T, Input<'a>>;
@@ -28,8 +28,14 @@ fn is_ident_char(&byte: &char) -> bool {
 fn string<'a>(input: &mut Input<'a>) -> Result<'a, String> {
     let mut is_escaped = false;
     let str_char = |&c: &char| -> bool {
-        if is_escaped { is_escaped = false; return true; }
-        if c == '\\' { is_escaped = true; return true; }
+        if is_escaped {
+            is_escaped = false;
+            return true;
+        }
+        if c == '\\' {
+            is_escaped = true;
+            return true;
+        }
         c != '"'
     };
 
@@ -97,8 +103,7 @@ impl std::str::FromStr for Value {
     type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> std::result::Result<Self, std::convert::Infallible> {
-        Ok(parse!(value: Text::from(s))
-            .unwrap_or_else(|_| Value::from(s.to_string())))
+        Ok(parse!(value: Text::from(s)).unwrap_or_else(|_| Value::from(s.to_string())))
     }
 }
 
@@ -161,7 +166,9 @@ mod tests {
 
     #[test]
     fn check_compund_values_parse() {
-        fn v<T: Into<Value>>(v: T) -> Value { v.into() }
+        fn v<T: Into<Value>>(v: T) -> Value {
+            v.into()
+        }
 
         assert_parse_eq! {
             "[1,2,3]" => vec![1u8, 2u8, 3u8],

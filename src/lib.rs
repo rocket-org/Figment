@@ -1,5 +1,5 @@
 #![cfg_attr(nightly, feature(doc_cfg))]
-#![deny(missing_docs)]
+#![deny(missing_docs, clippy::all)]
 
 //! Semi-hierarchical configuration so con-free, it's unreal.
 //!
@@ -473,22 +473,24 @@
 //!   * [`Error`] may contain more than one error: iterate over it to retrieve
 //!     all errors.
 
-pub mod value;
-pub mod providers;
-pub mod error;
-pub mod util;
-mod figment;
-mod profile;
 mod coalesce;
+pub mod error;
+mod figment;
 mod metadata;
+mod profile;
 mod provider;
+pub mod providers;
+pub mod util;
+pub mod value;
 
-#[cfg(any(test, feature = "test"))] mod jail;
-#[cfg(any(test, feature = "test"))] pub use jail::Jail;
+#[cfg(any(test, feature = "test"))]
+mod jail;
+#[cfg(any(test, feature = "test"))]
+pub use jail::Jail;
 
+pub use self::figment::Figment;
 #[doc(inline)]
 pub use error::Error;
-pub use self::figment::Figment;
+pub use metadata::*;
 pub use profile::Profile;
 pub use provider::*;
-pub use metadata::*;
