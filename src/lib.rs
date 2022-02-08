@@ -1,5 +1,5 @@
 #![cfg_attr(nightly, feature(doc_cfg))]
-#![deny(missing_docs)]
+#![deny(missing_docs, clippy::all)]
 
 //! Semi-hierarchical configuration so con-free, it's unreal.
 //!

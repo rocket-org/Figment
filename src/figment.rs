@@ -136,9 +136,7 @@ impl Figment {
             (Err(e), Ok(_)) => Err(e.retagged(tag)),
             (Err(e), Err(prev)) => Err(e.retagged(tag).chain(prev)),
             (Ok(mut new), Ok(old)) => {
-                new.iter_mut()
-                    .map(|(p, map)| std::iter::repeat(p).zip(map.values_mut()))
-                    .flatten()
+                new.iter_mut().flat_map(|(p, map)| std::iter::repeat(p).zip(map.values_mut()))
                     .for_each(|(p, v)| v.map_tag(|t| *t = tag.for_profile(p)));
 
                 Ok(old.coalesce(new, order))

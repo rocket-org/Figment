@@ -227,7 +227,7 @@ impl Env {
     where
         F: Fn(&UncasedStr) -> bool,
     {
-        self.chain(move |prev| prev.filter(|v| filter(&v)))
+        self.chain(move |prev| prev.filter(|v| filter(v)))
     }
 
     /// Applys an additional mapping to the keys of environment variables being

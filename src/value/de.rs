@@ -57,7 +57,7 @@ impl<'de: 'c, 'c> Deserializer<'de> for ConfiguredValueDe<'c> {
             _ => visitor.visit_some(self),
         };
 
-        result.map_err(|e| e.retagged(tag).resolved(&config))
+        result.map_err(|e| e.retagged(tag).resolved(config))
     }
 
     fn deserialize_struct<V: Visitor<'de>>(
@@ -90,7 +90,7 @@ impl<'de: 'c, 'c> Deserializer<'de> for ConfiguredValueDe<'c> {
 
         let (config, tag) = (self.config, self.value.tag());
         let result = match self.value {
-            Value::String(_, s) => v.visit_enum((&**s).into_deserializer()),
+            Value::String(_, s) => v.visit_enum((**s).into_deserializer()),
             Value::Dict(_, ref map) => {
                 let maker = |v| Self::from(self.config, v);
                 let map_access = MapDe::new(map, maker);
@@ -103,7 +103,7 @@ impl<'de: 'c, 'c> Deserializer<'de> for ConfiguredValueDe<'c> {
             _ => self.deserialize_any(v),
         };
 
-        result.map_err(|e| e.retagged(tag).resolved(&config))
+        result.map_err(|e| e.retagged(tag).resolved(config))
     }
 
     fn is_human_readable(&self) -> bool {
@@ -261,7 +261,7 @@ impl<'de> Deserializer<'de> for &Value {
         use serde::de::value::MapAccessDeserializer;
 
         let result = match self {
-            Value::String(_, s) => v.visit_enum((&**s).into_deserializer()),
+            Value::String(_, s) => v.visit_enum((**s).into_deserializer()),
             Value::Dict(_, ref map) => {
                 let map_access = MapDe::new(map, |v| v);
                 v.visit_enum(MapAccessDeserializer::new(map_access))

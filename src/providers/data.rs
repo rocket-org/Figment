@@ -257,10 +257,10 @@ impl<F: Format> Provider for Data<F> {
         use Source::*;
         let map: Result<Map<Profile, Dict>, _> = match (&self.source, &self.profile) {
             (File(None), _) => return Ok(Map::new()),
-            (File(Some(path)), None) => F::from_path(&path),
-            (String(s), None) => F::from_str(&s),
-            (File(Some(path)), Some(prof)) => F::from_path(&path).map(|v| prof.collect(v)),
-            (String(s), Some(prof)) => F::from_str(&s).map(|v| prof.collect(v)),
+            (File(Some(path)), None) => F::from_path(path),
+            (String(s), None) => F::from_str(s),
+            (File(Some(path)), Some(prof)) => F::from_path(path).map(|v| prof.collect(v)),
+            (String(s), Some(prof)) => F::from_str(s).map(|v| prof.collect(v)),
         };
 
         Ok(map.map_err(|e| e.to_string())?)
@@ -321,7 +321,7 @@ pub trait Format: Sized {
 
     /// Parses `string` as the data format `Self` as a `T` or returns an error
     /// if the `string` is an invalid `T`.
-    fn from_str<'de, T: DeserializeOwned>(string: &'de str) -> Result<T, Self::Error>;
+    fn from_str<T: DeserializeOwned>(string: &str) -> Result<T, Self::Error>;
 
     /// Parses the file at `path` as the data format `Self` as a `T` or returns
     /// an error if the `string` is an invalid `T`. The default implementation

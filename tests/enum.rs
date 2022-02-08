@@ -4,15 +4,9 @@ use figment::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Default)]
 pub struct Test {
     service: Option<Foo>,
-}
-
-impl Default for Test {
-    fn default() -> Self {
-        Test { service: None }
-    }
 }
 
 #[derive(PartialEq, Debug, Deserialize, Serialize)]
