@@ -17,28 +17,28 @@ json = ["serde_json"]
 yaml = ["serde_yaml"]
 parse-value = ["pear"]
 test = ["tempfile", "parking_lot"]
-# toml = ["toml"]
+# toml = ["toml"] -> usable once we can select the dependency as dep:toml
 
 [dependencies]
-serde = { version = "1.0" }
-uncased = "0.9.3"
-pear = { version = "0.2", optional = true }
-toml = { version = "0.5", optional = true }
-serde_json = { version = "1.0", optional = true }
-serde_yaml = { version = "0.8", optional = true }
-tempfile = { version = "3", optional = true }
-parking_lot = { version = "0.11", optional = true }
+serde = { version = "1.0.136" }
+uncased = "0.9.6"
+pear = { version = "0.2.3", optional = true }
+toml = { version = "0.5.8", optional = true }
+serde_json = { version = "1.0.78", optional = true }
+serde_yaml = { version = "0.8.23", optional = true }
+tempfile = { version = "3.3.0", optional = true }
+parking_lot = { version = "0.12.0", optional = true }
 
 [target.'cfg(any(target_pointer_width = "8", target_pointer_width = "16", target_pointer_width = "32"))'.dependencies]
-atomic = "0.5.0"
+atomic = "0.5.1"
 
 [dev-dependencies]
-tempfile = "3"
-parking_lot = "0.11"
-serde = { version = "1.0", features = ["derive"] }
+tempfile = "3.3.0"
+parking_lot = "0.12.0"
+serde = { version = "1.0.136", features = ["derive"] }
 
 [build-dependencies]
-version_check = "0.9"
+version_check = "0.9.4"
 
 [package.metadata.docs.rs]
 all-features = true
