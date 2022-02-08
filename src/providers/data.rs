@@ -3,13 +3,13 @@ use std::path::{Path, PathBuf};
 
 use serde::de::{self, DeserializeOwned};
 
-use crate::value::{Map, Dict};
-use crate::{Error, Profile, Provider, Metadata};
+use crate::value::{Dict, Map};
+use crate::{Error, Metadata, Profile, Provider};
 
 #[derive(Debug, Clone)]
 enum Source {
     File(Option<PathBuf>),
-    String(String)
+    String(String),
 }
 
 /// A `Provider` that sources values from a file or string in a given
@@ -70,7 +70,11 @@ pub struct Data<F: Format> {
 
 impl<F: Format> Data<F> {
     fn new(source: Source, profile: Option<Profile>) -> Self {
-        Data { source, profile, _format: PhantomData }
+        Data {
+            source,
+            profile,
+            _format: PhantomData,
+        }
     }
 
     /// Returns a `Data` provider that sources its values by parsing the file at
@@ -114,7 +118,7 @@ impl<F: Format> Data<F> {
             if path.is_absolute() {
                 match path.is_file() {
                     true => return Some(path.to_path_buf()),
-                    false => return None
+                    false => return None,
                 }
             }
 
@@ -245,7 +249,7 @@ impl<F: Format> Provider for Data<F> {
         match &self.source {
             String(_) => Metadata::named(format!("{} source string", F::NAME)),
             File(None) => Metadata::named(format!("{} file", F::NAME)),
-            File(Some(p)) => Metadata::from(format!("{} file", F::NAME), &**p)
+            File(Some(p)) => Metadata::from(format!("{} file", F::NAME), &**p),
         }
     }
 

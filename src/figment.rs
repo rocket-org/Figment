@@ -2,10 +2,10 @@ use std::panic::Location;
 
 use serde::de::Deserialize;
 
-use crate::{Profile, Provider, Metadata};
-use crate::error::{Kind, Result};
-use crate::value::{Value, Map, Dict, Tag, ConfiguredValueDe};
 use crate::coalesce::{Coalescible, Order};
+use crate::error::{Kind, Result};
+use crate::value::{ConfiguredValueDe, Dict, Map, Tag, Value};
+use crate::{Metadata, Profile, Provider};
 
 /// Combiner of [`Provider`]s for configuration value extraction.
 ///
@@ -132,7 +132,7 @@ impl Figment {
         let tag = Tag::next();
         self.metadata.insert(tag, metadata);
         self.value = match (provider.data(), self.value) {
-            (Ok(_), e@Err(_)) => e,
+            (Ok(_), e @ Err(_)) => e,
             (Err(e), Ok(_)) => Err(e.retagged(tag)),
             (Err(e), Err(prev)) => Err(e.retagged(tag).chain(prev)),
             (Ok(mut new), Ok(old)) => {
@@ -201,7 +201,7 @@ impl Figment {
 
         let map = match map.remove(&self.profile) {
             Some(v) if self.profile.is_custom() => def.merge(v).merge(global),
-            _ => def.merge(global)
+            _ => def.merge(global),
         };
 
         Ok(Value::Dict(Tag::Default, map))
@@ -261,7 +261,8 @@ impl Figment {
     pub fn focus(&self, key: &str) -> Self {
         fn try_focus(figment: &Figment, key: &str) -> Result<Map<Profile, Dict>> {
             let map = figment.value.clone().map_err(|e| e.resolved(figment))?;
-            let new_map = map.into_iter()
+            let new_map = map
+                .into_iter()
                 .filter_map(|(k, v)| {
                     let focused = Value::Dict(Tag::Default, v).find(key)?;
                     let dict = focused.into_dict()?;
@@ -275,7 +276,7 @@ impl Figment {
         Figment {
             profile: self.profile.clone(),
             metadata: self.metadata.clone(),
-            value: try_focus(self, key)
+            value: try_focus(self, key),
         }
     }
 
@@ -437,7 +438,8 @@ impl Figment {
     /// assert_eq!(profiles, &["release", "staging", "testing"]);
     /// ```
     pub fn profiles(&self) -> impl Iterator<Item = &Profile> {
-        self.value.as_ref()
+        self.value
+            .as_ref()
             .ok()
             .map(|v| v.keys())
             .into_iter()
@@ -557,9 +559,13 @@ impl Figment {
 }
 
 impl Provider for Figment {
-    fn metadata(&self) -> Metadata { Metadata::default() }
+    fn metadata(&self) -> Metadata {
+        Metadata::default()
+    }
 
-    fn data(&self) -> Result<Map<Profile, Dict>> { self.value.clone() }
+    fn data(&self) -> Result<Map<Profile, Dict>> {
+        self.value.clone()
+    }
 
     fn profile(&self) -> Option<Profile> {
         Some(self.profile.clone())

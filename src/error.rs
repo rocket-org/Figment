@@ -1,11 +1,11 @@
 //! Error values produces when extracting configurations.
 
-use std::fmt::{self, Display};
 use std::borrow::Cow;
+use std::fmt::{self, Display};
 
-use serde::{ser, de};
+use serde::{de, ser};
 
-use crate::{Figment, Profile, Metadata, value::Tag};
+use crate::{value::Tag, Figment, Metadata, Profile};
 
 /// A simple alias to `Result` with an error type of [`Error`].
 pub type Result<T> = std::result::Result<T, Error>;
@@ -161,8 +161,7 @@ impl Error {
         let mut error = Some(&mut self);
         while let Some(e) = error {
             e.metadata = config.get_metadata(e.tag).cloned();
-            e.profile = e.tag.profile()
-                .or_else(|| Some(config.profile().clone()));
+            e.profile = e.tag.profile().or_else(|| Some(config.profile().clone()));
 
             error = e.prev.as_deref_mut();
         }
@@ -328,7 +327,7 @@ impl From<de::Unexpected<'_>> for Actual {
             de::Unexpected::NewtypeVariant => Actual::NewtypeVariant,
             de::Unexpected::TupleVariant => Actual::TupleVariant,
             de::Unexpected::StructVariant => Actual::StructVariant,
-            de::Unexpected::Other(v) => Actual::Other(v.into())
+            de::Unexpected::Other(v) => Actual::Other(v.into()),
         }
     }
 }
@@ -401,12 +400,17 @@ impl Display for Kind {
             }
             Kind::InvalidValue(v, exp) => {
                 write!(f, "invalid value {}, expected {}", v, exp)
-            },
+            }
             Kind::InvalidLength(v, exp) => {
                 write!(f, "invalid length {}, expected {}", v, exp)
-            },
+            }
             Kind::UnknownVariant(v, exp) => {
-                write!(f, "unknown variant: found `{}`, expected `{}`", v, OneOf(exp))
+                write!(
+                    f,
+                    "unknown variant: found `{}`, expected `{}`",
+                    v,
+                    OneOf(exp)
+                )
             }
             Kind::UnknownField(v, exp) => {
                 write!(f, "unknown field: found `{}`, expected `{}`", v, OneOf(exp))
@@ -475,7 +479,9 @@ impl fmt::Display for OneOf {
             _ => {
                 write!(f, "one of ")?;
                 for (i, alt) in self.0.iter().enumerate() {
-                    if i > 0 { write!(f, ", ")?; }
+                    if i > 0 {
+                        write!(f, ", ")?;
+                    }
                     write!(f, "`{}`", alt)?;
                 }
 

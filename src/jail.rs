@@ -1,12 +1,12 @@
-use std::fs::File;
-use std::io::{Write, BufWriter};
-use std::path::{Path, PathBuf};
-use std::fmt::Display;
-use std::ffi::{OsStr, OsString};
 use std::collections::HashMap;
+use std::ffi::{OsStr, OsString};
+use std::fmt::Display;
+use std::fs::File;
+use std::io::{BufWriter, Write};
+use std::path::{Path, PathBuf};
 
-use tempfile::TempDir;
 use parking_lot::Mutex;
+use tempfile::TempDir;
 
 use crate::error::Result;
 
@@ -62,7 +62,9 @@ pub struct Jail {
     saved_cwd: PathBuf,
 }
 
-fn as_string<S: Display>(s: S) -> String { s.to_string() }
+fn as_string<S: Display>(s: S) -> String {
+    s.to_string()
+}
 
 static LOCK: Mutex<()> = parking_lot::const_mutex(());
 
@@ -151,7 +153,9 @@ impl Jail {
     pub fn create_file<P: AsRef<Path>>(&self, path: P, contents: &str) -> Result<File> {
         let path = path.as_ref();
         if !path.is_relative() {
-            return Err("Jail::create_file(): file path is absolute".to_string().into());
+            return Err("Jail::create_file(): file path is absolute"
+                .to_string()
+                .into());
         }
 
         let file = File::create(self.directory().join(path)).map_err(as_string)?;
@@ -181,7 +185,8 @@ impl Jail {
     pub fn set_env<K: AsRef<str>, V: Display>(&mut self, k: K, v: V) {
         let key = k.as_ref();
         if !self.saved_env_vars.contains_key(OsStr::new(key)) {
-            self.saved_env_vars.insert(key.into(), std::env::var_os(key));
+            self.saved_env_vars
+                .insert(key.into(), std::env::var_os(key));
         }
 
         std::env::set_var(key, v.to_string());
@@ -193,7 +198,7 @@ impl Drop for Jail {
         for (key, value) in self.saved_env_vars.iter() {
             match value {
                 Some(val) => std::env::set_var(key, val),
-                None => std::env::remove_var(key)
+                None => std::env::remove_var(key),
             }
         }
 

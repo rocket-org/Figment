@@ -1,8 +1,8 @@
 use std::fmt;
 use std::sync::atomic::Ordering;
 
-use serde::{de, ser};
 use crate::profile::{Profile, ProfileTag};
+use serde::{de, ser};
 /// An opaque, unique tag identifying a value's [`Metadata`](crate::Metadata)
 /// and profile.
 ///
@@ -16,12 +16,19 @@ use crate::profile::{Profile, ProfileTag};
 #[derive(Copy, Clone)]
 pub struct Tag(u64);
 
-#[cfg(any(target_pointer_width = "8", target_pointer_width = "16", target_pointer_width = "32"))]
+#[cfg(any(
+    target_pointer_width = "8",
+    target_pointer_width = "16",
+    target_pointer_width = "32"
+))]
 static COUNTER: atomic::Atomic<u64> = atomic::Atomic::new(1);
 
-#[cfg(not(any(target_pointer_width = "8", target_pointer_width = "16", target_pointer_width = "32")))]
+#[cfg(not(any(
+    target_pointer_width = "8",
+    target_pointer_width = "16",
+    target_pointer_width = "32"
+)))]
 static COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
-
 
 impl Tag {
     /// The default `Tag`. Such a tag will never have associated metadata and
@@ -107,7 +114,7 @@ impl PartialEq for Tag {
     }
 }
 
-impl Eq for Tag {  }
+impl Eq for Tag {}
 
 impl PartialOrd for Tag {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
@@ -135,7 +142,8 @@ impl From<Tag> for crate::value::Value {
 
 impl<'de> de::Deserialize<'de> for Tag {
     fn deserialize<D>(deserializer: D) -> Result<Tag, D::Error>
-        where D: de::Deserializer<'de>
+    where
+        D: de::Deserializer<'de>,
     {
         struct Visitor;
 
@@ -165,7 +173,7 @@ impl fmt::Debug for Tag {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             t if t.is_default() => write!(f, "Tag::Default"),
-            _ => write!(f, "Tag({:?}, {})", self.profile_tag(), self.metadata_id())
+            _ => write!(f, "Tag({:?}, {})", self.profile_tag(), self.metadata_id()),
         }
     }
 }
