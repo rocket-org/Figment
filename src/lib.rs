@@ -1,5 +1,6 @@
 #![cfg_attr(nightly, feature(doc_cfg))]
 #![deny(missing_docs)]
+#![forbid(unsafe_code)]
 
 //! Semi-hierarchical configuration so con-free, it's unreal.
 //!
